@@ -13,6 +13,12 @@ spring:
         name: gateway-service
     cloud:
         gateway:
+            default-filters:
+                - name: GlobalFilter
+                  args:
+                      baseMessage: Spring Gateway GlobalFilter
+                      preLogger: true
+                      postLogger: true
             routes:
                 - id: first-service
                   uri: lb://FIRST-SERVICE
@@ -21,6 +27,7 @@ spring:
                   filters:
                       - AddRequestHeader=first-request, first-request-header2
                       - AddResponseHeader=first-response, first-response-header2
+                      - CustomFilter
                 - id: second-service
                   uri: http://localhost:8082/
                   predicates:

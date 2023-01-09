@@ -18,4 +18,9 @@ public class FirstController {
         System.out.println(header);
         return "hello first service";
     }
+
+    @GetMapping("/check")
+    public String check() {
+        return "first service check";
+    }
 }
