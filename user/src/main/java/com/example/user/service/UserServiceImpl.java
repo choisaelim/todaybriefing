@@ -1,14 +1,18 @@
 package com.example.user.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.modelmapper.spi.MatchingStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.example.user.dto.ResponseOrder;
 import com.example.user.dto.UserDto;
 import com.example.user.jpa.UserEntity;
 import com.example.user.jpa.UserRepository;
@@ -16,14 +20,12 @@ import com.example.user.jpa.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
-// @RequiredArgsConstructor
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    BCryptPasswordEncoder passEncoder;
+    final BCryptPasswordEncoder passEncoder;
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Override
     public UserDto createUser(UserDto userDto) {
@@ -38,6 +40,26 @@ public class UserServiceImpl implements UserService {
 
         UserDto userVo = mapper.map(entity, UserDto.class);
         return userVo;
+    }
+
+    @Override
+    public UserDto getUserByUserId(String userId) {
+        UserEntity entity = userRepository.findByUserId(userId);
+
+        if (entity == null)
+            throw new UsernameNotFoundException("user id not found");
+
+        UserDto userDto = new ModelMapper().map(entity, UserDto.class);
+
+        List<ResponseOrder> ordersList = new ArrayList<>();
+        userDto.setOrdersList(ordersList);
+
+        return userDto;
+    }
+
+    @Override
+    public Iterable<UserEntity> getUserByAll() {
+        return userRepository.findAll();
     }
 
 }
