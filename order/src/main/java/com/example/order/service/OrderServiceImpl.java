@@ -20,7 +20,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDto createOrder(OrderDto orderDetails) {
-        orderDetails.setUserId(UUID.randomUUID().toString());
+        orderDetails.setOrderId(UUID.randomUUID().toString());
         orderDetails.setTotalPrice(orderDetails.getQty() * orderDetails.getUnitPrice());
         ModelMapper mapper = new ModelMapper();
         mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
