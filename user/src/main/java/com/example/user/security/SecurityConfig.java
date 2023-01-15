@@ -21,14 +21,17 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final Environment env;
-    private final AuthenticationManager authenticationManager;
+    // private final AuthenticationManager authenticationManager;
     private final UserService userService;
 
+    // WebSecurityConfigurerAdapter deprecated > SecurityFilterChain을 빈으로 등록해서
+    // httpsecurity 구성
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
         http.csrf().disable();
         http.authorizeRequests().antMatchers("/**")
-                .access("hasIpAddress('127.0.0.1')")
+                .access("hasIpAddress('" + env.getProperty("gateway.ip") + "')")
                 .and().addFilter(getAuthenticationFilter());
         http.headers().frameOptions().disable();
         return http.build();
@@ -36,8 +39,8 @@ public class SecurityConfig {
     }
 
     private AuthenticationFilter getAuthenticationFilter() {
-        AuthenticationFilter authFilter = new AuthenticationFilter();
-        authFilter.setAuthenticationManager(authenticationManager);
+        AuthenticationFilter authFilter = new AuthenticationFilter(userService);
+        // authFilter.setAuthenticationManager(authenticationManager);
 
         return authFilter;
     }
@@ -47,5 +50,25 @@ public class SecurityConfig {
             throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
+
+    // @Bean
+    // public AuthenticationManager
+    // authenticationManager(AuthenticationConfiguration
+    // authenticationConfiguration)
+    // throws Exception {
+    // return authenticationConfiguration.getAuthenticationManager();
+    // }
+
+    // @Bean
+    // public AuthenticationManager authenticationManager(HttpSecurity http,
+    // BCryptPasswordEncoder bCryptPasswordEncoder,
+    // UserDetailService userDetailService)
+    // throws Exception {
+    // return http.getSharedObject(AuthenticationManagerBuilder.class)
+    // .userDetailsService(userDetailsService)
+    // .passwordEncoder(bCryptPasswordEncoder)
+    // .and()
+    // .build();
+    // }
 
 }
