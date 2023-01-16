@@ -1,5 +1,7 @@
 package com.example.user.security;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,12 +25,23 @@ public class SecurityConfig {
     private final Environment env;
     // private final AuthenticationManager authenticationManager;
     private final UserService userService;
+    private final AuthenticationManagerBuilder authManagerBuilder;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    // @Bean
+    // public AuthenticationManager
+    // authenticationManager(AuthenticationConfiguration
+    // authenticationConfiguration)
+    // throws Exception {
+    // AuthenticationManager authManager =
+    // authenticationConfiguration.getAuthenticationManager();
+    // return authManager;
+    // }
 
     // WebSecurityConfigurerAdapter deprecated > SecurityFilterChain을 빈으로 등록해서
     // httpsecurity 구성
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
         http.csrf().disable();
         http.authorizeRequests().antMatchers("/**")
                 .access("hasIpAddress('" + env.getProperty("gateway.ip") + "')")
@@ -38,17 +51,16 @@ public class SecurityConfig {
 
     }
 
-    private AuthenticationFilter getAuthenticationFilter() {
-        AuthenticationFilter authFilter = new AuthenticationFilter(userService);
+    private AuthenticationFilter getAuthenticationFilter() throws Exception {
+        // AuthenticationFilter authFilter = new AuthenticationFilter(userService);
+        // authManagerBuilder.userDetailsService(userService).passwordEncoder(bCryptPasswordEncoder);
+        AuthenticationManager authManager = authManagerBuilder.getOrBuild();
+
+        AuthenticationFilter authFilter = new AuthenticationFilter(authManager);
+
         // authFilter.setAuthenticationManager(authenticationManager);
 
         return authFilter;
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
-            throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
     }
 
     // @Bean
