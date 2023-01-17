@@ -11,8 +11,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -31,12 +33,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
-    // private final UserService userService;
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+    private final Environment env;
 
-    public AuthenticationFilter(AuthenticationManager authenticationManager) {
+    public AuthenticationFilter(AuthenticationManager authenticationManager, UserService userService, Environment env) {
         super.setAuthenticationManager(authenticationManager);
+        this.userService = userService;
+        this.env = env;
     }
 
     @Override
@@ -62,8 +65,9 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
         String token = Jwts.builder()
                 .setSubject(userDetails.getUserId())
-                .setExpiration(new Date(System.currentTimeMillis() + Long.parseLong("8640000000")))
-                .signWith(SignatureAlgorithm.HS512, "")
+                .setExpiration(
+                        new Date(System.currentTimeMillis() + Long.parseLong(env.getProperty("token.expiration_time"))))
+                .signWith(SignatureAlgorithm.HS512, env.getProperty("token.secret"))
                 .compact();
 
         response.addHeader("token", token);

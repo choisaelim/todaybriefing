@@ -53,11 +53,10 @@ public class SecurityConfig {
 
     private AuthenticationFilter getAuthenticationFilter() throws Exception {
         // AuthenticationFilter authFilter = new AuthenticationFilter(userService);
-        // authManagerBuilder.userDetailsService(userService).passwordEncoder(bCryptPasswordEncoder);
+        // authManagerBuilder.userDetailsService(userService);
         AuthenticationManager authManager = authManagerBuilder.getOrBuild();
 
-        AuthenticationFilter authFilter = new AuthenticationFilter(authManager);
-
+        AuthenticationFilter authFilter = new AuthenticationFilter(authManager, userService, env);
         // authFilter.setAuthenticationManager(authenticationManager);
 
         return authFilter;

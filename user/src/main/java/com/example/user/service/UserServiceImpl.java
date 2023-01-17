@@ -83,7 +83,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getUserDetailsByEmail(String email) {
         UserEntity entity = userRepository.findByEmail(email);
-        return null;
+
+        if (entity == null)
+            throw new UsernameNotFoundException("user id not found");
+
+        UserDto userDto = new ModelMapper().map(entity, UserDto.class);
+        return userDto;
     }
 
 }
