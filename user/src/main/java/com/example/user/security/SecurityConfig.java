@@ -23,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final Environment env;
-    // private final AuthenticationManager authenticationManager;
     private final UserService userService;
     private final AuthenticationManagerBuilder authManagerBuilder;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -43,6 +42,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf().disable();
+        http.authorizeRequests().antMatchers("/actuator/**").permitAll();
         http.authorizeRequests().antMatchers("/**")
                 .access("hasIpAddress('" + env.getProperty("gateway.ip") + "')")
                 .and().addFilter(getAuthenticationFilter());
